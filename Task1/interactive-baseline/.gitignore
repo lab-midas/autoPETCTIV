@@ -7,10 +7,6 @@ src/sw_fastedit/data/*
 dist/
 *.tar.gz
 src/sw_fastedit/demo_json/*
-assets/input/*
-assets/output/*
-assets/nii_path/*
-assets/nii_out_path/*
-assets/json_path/*
+assets/*
 
 test/*
