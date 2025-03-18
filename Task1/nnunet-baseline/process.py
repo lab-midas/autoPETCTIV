@@ -111,7 +111,6 @@ class Autopet_baseline:
             if click_file:
                 with open(os.path.join(self.lesion_click_path, click_file), 'r') as f:
                     clicks = json.load(f)
-                print(f"clicks: {clicks}")
                 save_click_heatmaps(clicks, self.nii_path, 
                                     os.path.join(self.nii_path, "TCIA_001_0001.nii.gz"),
                                     )
