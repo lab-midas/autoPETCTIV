@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 
-set -euf -o pipefail
+# Capture the start time
+start_time=$(date +%s)
 
 SCRIPTPATH="$(dirname "$( cd "$(dirname "$0")" ; pwd -P)")"
 SCRIPTPATHCURR="$( cd "$(dirname "$0")" ; pwd -P )"

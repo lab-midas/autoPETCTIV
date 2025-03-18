@@ -41,6 +41,21 @@ class Autopet_baseline:
     def convert_nii_to_mha(self, nii_input_path, mha_out_path):  # nnUNet specific
         img = SimpleITK.ReadImage(nii_input_path)
         SimpleITK.WriteImage(img, mha_out_path, True)
+    
+    def gc_to_swfastedit_format(self, gc_json_path, swfast_json_path):
+        with open(gc_json_path, 'r') as f:
+            gc_dict = json.load(f)
+        swfast_dict = {
+            "tumor": [],
+            "background": []
+        }
+        for point in gc_dict.get("points", []):
+            if point["name"] == "tumor":
+                swfast_dict["tumor"].append(point["point"])
+            elif point["name"] == "background":
+                swfast_dict["background"].append(point["point"])
+        with open(swfast_json_path, 'w') as f:
+            json.dump(swfast_dict, f)
 
     def check_gpu(self):
         """
@@ -76,27 +91,29 @@ class Autopet_baseline:
             os.path.join(self.input_path, "images/pet/", pet_mha),
             os.path.join(self.nii_path, "TCIA_001_0001.nii.gz"),
         )
+        # This is only possible during training
         self.convert_mha_to_nii(
             os.path.join(self.input_path, "labels/", label_mha),
             os.path.join(self.gt_nii_path, "TCIA_001.nii.gz"),
         )
 
-        if simulate_click:
-            simulate_clicks(os.path.join(self.gt_nii_path, "TCIA_001.nii.gz"), None,
+        if simulate_click: #For testing, this option is not possible as the clicks are provided
+            simulate_clicks(os.path.join(self.gt_nii_path, "TCIA_001.nii.gz"), 
+                            os.path.join(self.nii_path, "TCIA_001_0001.nii.gz"),
                             self.lesion_click_path
                             )
         if not simulate_click:
             json_file = next(Path(self.input_path).rglob("*.json"), None)
-            if json_file:shutil.copy(json_file,os.path.join(self.lesion_click_path, "TCIA_001_clicks.json"),
-                                    )
+            self.gc_to_swfastedit_format(json_file, os.path.join(self.lesion_click_path, "TCIA_001_clicks.json"))
 
         if save_click_heatmap: #if save_click_heatmap=False --> original nnUNet setup with two input channels (like the auptoPET III nnunet-baseline)
             click_file = os.listdir(self.lesion_click_path)[0]
             if click_file:
                 with open(os.path.join(self.lesion_click_path, click_file), 'r') as f:
                     clicks = json.load(f)
+                print(f"clicks: {clicks}")
                 save_click_heatmaps(clicks, self.nii_path, 
-                                    os.path.join(self.gt_nii_path, "TCIA_001.nii.gz"),
+                                    os.path.join(self.nii_path, "TCIA_001_0001.nii.gz"),
                                     )
         print(os.listdir(self.nii_path))
 

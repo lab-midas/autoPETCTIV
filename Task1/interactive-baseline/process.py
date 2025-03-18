@@ -1,6 +1,7 @@
 import SimpleITK
 import time
 import os
+import json
 import sys
 import shutil
 from pathlib import Path
@@ -34,6 +35,21 @@ class Autopet_baseline():  # SegmentationAlgorithm is not inherited in this clas
     def convert_nii_to_mha(self, nii_input_path, mha_out_path):  
         img = SimpleITK.ReadImage(nii_input_path)
         SimpleITK.WriteImage(img, mha_out_path, True)
+    
+    def gc_to_swfastedit_format(self, gc_json_path, swfast_json_path):
+        with open(gc_json_path, 'r') as f:
+            gc_dict = json.load(f)
+        swfast_dict = {
+            "tumor": [],
+            "background": []
+        }
+        for point in gc_dict.get("points", []):
+            if point["name"] == "tumor":
+                swfast_dict["tumor"].append(point["point"])
+            elif point["name"] == "background":
+                swfast_dict["background"].append(point["point"])
+        with open(swfast_json_path, 'w') as f:
+            json.dump(swfast_dict, f)
 
     def check_gpu(self):
         """
@@ -62,8 +78,8 @@ class Autopet_baseline():  # SegmentationAlgorithm is not inherited in this clas
                                 os.path.join(self.nii_path, 'TCIA_001_0000.nii.gz'))
         self.convert_mha_to_nii(os.path.join(self.input_path, 'images/pet/', pet_mha),
                                 os.path.join(self.nii_path, 'TCIA_001_0001.nii.gz'))
-        if json_file:shutil.copy(json_file,os.path.join(self.lesion_click_path, "TCIA_001_clicks.json"),
-                                )
+        self.gc_to_swfastedit_format(json_file, os.path.join(self.lesion_click_path, "TCIA_001_clicks.json"))
+        
         return uuid
 
     def write_outputs(self, uuid):

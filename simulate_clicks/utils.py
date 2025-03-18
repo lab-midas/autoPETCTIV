@@ -186,10 +186,11 @@ def generate_gaussian_heatmap(coords, shape, sigma=2.0):
     heatmap = gaussian_filter(heatmap, sigma=sigma)    
     return heatmap
 
-def save_click_heatmaps(clicks, output, input_label, fg=True, bg=True):
-    label_im = nib.load(input_label)
-    ref_shape = label_im.shape
-    ref_affine = label_im.affine
+def save_click_heatmaps(clicks, output, input_img_path, fg=True, bg=True):
+    #input_img_path: is either path to PET (if autoPET II and III dataset are used) or CT if Longitudinal CT is used.
+    img = nib.load(input_img_path)
+    ref_shape = img.shape
+    ref_affine = img.affine
     tumor_coords = clicks['tumor']
     non_tumor_coords = clicks['background']
     
@@ -200,10 +201,10 @@ def save_click_heatmaps(clicks, output, input_label, fg=True, bg=True):
     non_tumor_nifti = nib.Nifti1Image(non_tumor_heatmap, ref_affine)
 
     if bg and fg:
-        nib.save(tumor_nifti, os.path.join(output, f'{input_label.split("/")[-1].split(".nii.gz")[0]}_0002.nii.gz')) # foreground clicks
-        nib.save(non_tumor_nifti, os.path.join(output, f'{input_label.split("/")[-1].split(".nii.gz")[0]}_0003.nii.gz')) # background clicks
+        nib.save(tumor_nifti, os.path.join(output, f'{input_img_path.split("/")[-1].split("_0001.nii.gz")[0]}_0002.nii.gz')) # foreground clicks
+        nib.save(non_tumor_nifti, os.path.join(output, f'{input_img_path.split("/")[-1].split("_0001.nii.gz")[0]}_0003.nii.gz')) # background clicks
     else:
-        nib.save(tumor_nifti, os.path.join(output, f'{input_label.split("/")[-1].split(".nii.gz")[0]}_0003.nii.gz')) # only foreground clicks (edit this with respect to the channel name e.g _0002, _0004, etc )
+        nib.save(tumor_nifti, os.path.join(output, f'{input_img_path.split("/")[-1].split("_0000.nii.gz")[0]}_0003.nii.gz')) # only foreground clicks (edit this with respect to the channel name e.g _0002, _0004, etc )
 
 
 # Loop over the dataset and simulate the clicks
@@ -223,6 +224,27 @@ def process_images(input_folder, json_folder, output, save_heatmap=True):
         else:
             continue
 
+# If GC json format is needed:
+def swfast_to_gc_format(swfast_json_path, gc_json_path):
+    assert os.path.exists(swfast_json_path)
+    
+    with open(swfast_json_path, 'r') as f:
+        json_data = json.load(f)
+        fg_points = json_data.get('tumor', [])
+        bg_points = json_data.get('background', [])
+        gc_dict = {  
+            "version": {"major": 1, "minor": 0},  
+            "type": "Multiple points",  
+            "points": []
+        }
+        for fg_point in fg_points:
+            gc_dict['points'].append({'point': fg_point, 'name': 'tumor'})
+        for bg_point in bg_points:
+            gc_dict['points'].append({'point': bg_point, 'name': 'background'})
+        with open(gc_json_path, 'w') as f_gc:
+            json.dump(gc_dict, f_gc)
+    print(f'Finished converting {swfast_json_path} to {gc_json_path} in the GC format!')
+
 
 if __name__ == "__main__":
     # Example: python utils.py -i path/to/labels -d "PSMA & FDG-PET/CT" -o path/to/output --json_output path/to/json_output
@@ -234,3 +256,7 @@ if __name__ == "__main__":
     os.makedirs(output, exist_ok=True)
     process_images(input_folder, json_folder, output)
     print("Done")
+    print("Convert to GC json format ")
+    gc_json_path = "path/to/gc_json"
+    swfast_to_gc_format(json_folder, gc_json_path)
+    

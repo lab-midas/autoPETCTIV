@@ -160,10 +160,10 @@ def generate_gaussian_heatmap(coords, shape, sigma=2.0):
     heatmap = gaussian_filter(heatmap, sigma=sigma)    
     return heatmap
 
-def save_click_heatmaps(clicks, output, input_label):
-    label_im = nib.load(input_label)
-    ref_shape = label_im.shape
-    ref_affine = label_im.affine
+def save_click_heatmaps(clicks, output, input_pet):
+    pet_img = nib.load(input_pet)
+    ref_shape = pet_img.shape
+    ref_affine = pet_img.affine
     tumor_coords = clicks['tumor']
     non_tumor_coords = clicks['background']
     
@@ -175,5 +175,5 @@ def save_click_heatmaps(clicks, output, input_label):
 
     os.makedirs(output, exist_ok = True)
 
-    nib.save(tumor_nifti, os.path.join(output, f'{input_label.split("/")[-1].split(".nii.gz")[0]}_0002.nii.gz')) # foreground clicks
-    nib.save(non_tumor_nifti, os.path.join(output, f'{input_label.split("/")[-1].split(".nii.gz")[0]}_0003.nii.gz')) # background clicks
+    nib.save(tumor_nifti, os.path.join(output, f'{input_pet.split("/")[-1].split("_0001.nii.gz")[0]}_0002.nii.gz')) # foreground clicks
+    nib.save(non_tumor_nifti, os.path.join(output, f'{input_pet.split("/")[-1].split("_0001.nii.gz")[0]}_0003.nii.gz')) # background clicks
