@@ -1,0 +1,12 @@
+cache/*
+output/*
+data/*
+utils/__pycache__/*
+src/sw_fastedit/data/*
+**/*.egg-info
+dist/
+.git/
+test/
+*.tar.gz
+weights/
+src/sw_fastedit/demo_json/*

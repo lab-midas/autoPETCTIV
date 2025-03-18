@@ -1,0 +1,5 @@
+cupy-cuda12x
+cucim
+pynvml
+connected-components-3d
+

@@ -1,0 +1,13 @@
+
+line-length = 120
+
+[lint]
+# Read more here https://beta.ruff.rs/docs/rules/
+# By default, Ruff enables Flake8's E and F rules
+# Pyflakes - F, pycodestyle - E, W
+# flake8-builtins - A
+# Pylint - PLC, PLE, PLW
+# isort - I
+select = ['E', 'F', 'W', 'A', 'UP', 'PLC', 'PLE', 'PLW', 'I']
+ignore = ['W191', 'A002']
+

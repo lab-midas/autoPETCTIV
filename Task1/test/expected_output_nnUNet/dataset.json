@@ -1,0 +1,20 @@
+{
+    "channel_names": {
+        "0": "CT",
+        "1": "PET",
+        "2": "FG",
+        "3": "BG"
+    },
+    "labels": {
+        "background": 0,
+        "tumor": 1
+    },
+    "numTraining": 1614,
+    "file_ending": ".nii.gz",
+    "licence": "Whoever converted this dataset was lazy and didn't look it up!",
+    "converted_by": "Please enter your name, especially when sharing datasets with others in a common infrastructure!",
+    "name": "AutoPETIV_2025",
+    "reference": " Coming Soon",
+    "release": "release",
+    "description": "AutoPETIV_2025 Interative Segmentation"
+}
