@@ -224,7 +224,7 @@ def process_images(input_folder, json_folder, output, save_heatmap=True):
         else:
             continue
 
-# If GC json format is needed:
+# Convert json to GC format:
 def swfast_to_gc_format(swfast_json_path, gc_json_path):
     assert os.path.exists(swfast_json_path)
     
