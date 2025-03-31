@@ -11,7 +11,9 @@
    Gatidis S, Kuestner T. A whole-body FDG-PET/CT dataset with manually annotated tumor lesions (FDG-PET-CT-Lesions) 
    [Dataset]. The Cancer Imaging Archive, 2022. DOI: 10.7937/gkr0-xv29
 
-   Gatidis S., Hepp T., Früh M., La Fougère C., Nikolaou K., Pfannenberg, C., Schölkopf B., Küstner T., Cyran C., Rubin D. A whole-body FDG-PET/CT Dataset with manually annotated Tumor Lesions. Sci Data 9, 601 (2022). https://doi.org/10.1038/s41597-022-01718-3
+   Gatidis S., Hepp T., Früh M., La Fougère C., Nikolaou K., Pfannenberg, C., Schölkopf B., Küstner T., 
+   Cyran C., Rubin D. A whole-body FDG-PET/CT Dataset with manually annotated Tumor Lesions. Sci Data 9, 601 (2022). 
+   https://doi.org/10.1038/s41597-022-01718-3
    ```
    
    and
