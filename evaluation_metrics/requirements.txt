@@ -1,3 +1,0 @@
-numpy
-nibabel
-connected-components-3d
