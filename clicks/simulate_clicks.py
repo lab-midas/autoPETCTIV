@@ -15,6 +15,7 @@ import numpy as np
 import cupy as cp
 from cucim.core.operations import morphology
 import json
+from pathlib import Path
 
 import argparse
 import SimpleITK
@@ -234,12 +235,7 @@ def save_click_heatmaps(clicks, output, input_img_path, fg=True, bg=True):
     img = nib.load(input_img_path)
     ref_shape = img.shape
     ref_affine = img.affine
-    tumor_coords = clicks['tumor']
-    non_tumor_coords = clicks['background']
-    
-    tumor_heatmap = generate_gaussian_heatmap(tumor_coords, ref_shape, 3)
-    non_tumor_heatmap = generate_gaussian_heatmap(non_tumor_coords, ref_shape, 3)
-
+    tumor_heatmap , non_tumor_heatmap = get_click_heatmaps(clicks, ref_shape, fg, bg)
     tumor_nifti = nib.Nifti1Image(tumor_heatmap, ref_affine)
     non_tumor_nifti = nib.Nifti1Image(non_tumor_heatmap, ref_affine)
 
@@ -284,27 +280,36 @@ def process_image(input_label, input_pet, dataset_name, click_format='JSON', cen
 # Loop over the dataset and simulate the clicks
 def process_images(input_folder, json_folder, output, save_heatmap=True, center_offset=None, edge_offset=None):
     
+    gc_json_path = os.path.join(json_folder, 'gc')
+    os.makedirs(gc_json_path, exist_ok=True)
+
     for filename in os.listdir(input_folder):
+        fg, bg, click_budget = identify_click_region(args.dataset_name)
+        json_exist = os.path.join(json_folder,filename.replace('.nii.gz', '_clicks.json').split('/')[-1])
+        gc_json_exist = os.path.join(gc_json_path, filename.replace('.nii.gz', '_clicks.json').split('/')[-1])
+        if not isfile(json_exist) or not isfile(gc_json_exist):
+            if bg:
+                input_img_path = os.path.join(input_folder, filename).replace('labels','images').replace('.nii.gz','_0001.nii.gz')
+            if not bg:
+                input_img_path = os.path.join(input_folder, filename).replace('labels','images').replace('.nii.gz','_0000.nii.gz')
 
-        if not isfile(os.path.join(json_folder,filename.replace('.nii.gz', '_clicks.json').split('/')[-1])):
-            fg, bg, click_budget = identify_click_region(args.dataset_name)
-            clicks = simulate_clicks(os.path.join(input_folder, filename), None, fg, bg, center_offset, edge_offset, click_budget)
-
-            with open(os.path.join(json_folder,filename.replace('.nii.gz', '_clicks.json').split('/')[-1]), 'w') as f:
+            clicks = simulate_clicks(os.path.join(input_folder, filename), input_img_path, fg, bg, center_offset, edge_offset, click_budget)
+            with open(json_exist, 'w') as f:
                 json.dump(clicks, f)
-
+            print("Convert clicks to grand-challenge json format ")
+            clicks_to_gc_format(json_exist, gc_json_path=gc_json_exist)
+            
             if save_heatmap:
-                save_click_heatmaps(clicks, output, os.path.join(input_folder, filename), fg, bg)
+                save_click_heatmaps(clicks, output, input_img_path, fg, bg)
         else:
             continue
 
 # Convert json to GC format:
 def clicks_to_gc_format(input_clicks, gc_json_path=None):
     # check if the input is a path to a file
-    if os.path.isdir(input_clicks):
-        swfast_json_path = input_clicks
-        assert os.path.exists(swfast_json_path)
-        with open(swfast_json_path, 'r') as f:
+    if isinstance(input_clicks, str) and os.path.exists(input_clicks):
+        original_json_path = Path(input_clicks)
+        with open(original_json_path, 'r') as f:
             json_data = json.load(f)
     else:
         json_data = input_clicks
@@ -325,13 +330,13 @@ def clicks_to_gc_format(input_clicks, gc_json_path=None):
     if gc_json_path is not None:
         with open(gc_json_path, 'w') as f_gc:
             json.dump(gc_dict, f_gc)
-        print(f'Finished converting {swfast_json_path} to {gc_json_path} in the GC format!')
+        print(f'Finished converting to {gc_json_path} in the GC format!')
     else:
         return gc_dict
     
 
 if __name__ == "__main__":
-    # Example: python utils.py -i path/to/labels -d "PSMA-FDG-PET-CT" -o path/to/output --json_output path/to/json_output
+    # Example: python simulate_clicks.py -i path/to/labelsTr -d "PSMA-FDG-PETCT" --click_format "JSON_GC" -o path/to/imagesTr --json_output path/to/clicks
     print("START")
     input_folder = args.input_label 
     json_folder = args.json_output
@@ -341,7 +346,4 @@ if __name__ == "__main__":
     os.makedirs(output, exist_ok=True)
     process_images(input_folder, json_folder, output, save_heatmap, args.center_offset, args.edge_offset)
     print("Done")
-    print("Convert to grand-challenge json format ")
-    gc_json_path = os.path.join(json_folder, 'gc')
-    clicks_to_gc_format(json_folder, gc_json_path)
     
