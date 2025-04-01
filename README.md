@@ -120,6 +120,9 @@ Pre-simulated clicks for the entire longitudinal CT training database can be fou
 ## Evaluation metrics
 Evaluation code for the autoPET/CT IV challenge according to [here](https://autopet-iv.grand-challenge.org/evaluation-and-ranking/) can be found in: `evaluation_metrics/evaluation_metrics.py`
 
+## LaTeX template
+[Template for short paper](https://autopet-iv.grand-challenge.org/challenge-publication/) of final algorithm submission in [here](/publication_template/) 
+
 ## References
 Challenge: TBD<br/>
    
