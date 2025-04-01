@@ -1,4 +1,4 @@
-# autoPET/CT IV challenge - Task1: Single-staging whole-body PET/CT
+# autoPET/CT IV challenge - Task 1: Single-staging whole-body PET/CT
 Repository for code associated with autoPETIV machine learning challenge: <br/> 
 [autopet-iv.grand-challenge.org](https://autopet-iv.grand-challenge.org/autopet-iv/) 
 
@@ -21,10 +21,10 @@ was used for training the baseline model using the 3D fullres configuration on G
 The model input channels were structured as follows:
 * PET (SUV) volumes from autoPET III challenge (FDG & PSMA)
 * Resampled CT volumes from autoPET III challenge (FDG & PSMA)
-* 3D Gaussian heatmap for both the foreground clicks
-* 3D Gaussian heatmap for both the background clicks
-The model was trained using four input channels over 250k steps; the initial learning rate to 1e-4. Training was performed with 
-1 sample (fold 0). Inference runs without test-time augmentation because of the challenge time limit of 5 minutes.
+* 3D Gaussian heatmap for the foreground clicks
+* 3D Gaussian heatmap for the background clicks
+
+The model was trained using four input channels over 250k steps; the initial learning rate to 1e-4. Training was performed with 1 sample (fold 0). Inference runs without test-time augmentation because of the challenge time limit of 15 minutes.
 
 
 
