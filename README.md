@@ -84,7 +84,7 @@ An example script to run for the entire autoPET FDG+PSMA database:
 ```bash
 python clicks/simulate_clicks.py \
     --input_label test/input/autoPETIII/labelsTs/ \
-    --dataset_name PSMA-FDG_PETCT \
+    --dataset_name PSMA-FDG-PETCT \
     --json_output test/output/autoPETIII/JSON_clicks/ \
     --output_heatmap test/output/autoPETIII/Ts_clicks/ \
     --input_pet test/input/autoPETIII/imagesTs/ \
