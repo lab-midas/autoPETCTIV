@@ -49,19 +49,20 @@ def identify_click_region(dataset_name):
 def perturb_click(offset, click, label_im):
     import random
     random_offset = [random.randint(0, int(offset)) for _ in range(3)]
-    if label_im[
-        int(click[0] + random_offset[0]),
-        int(click[1] + random_offset[1]),
-        int(click[2] + random_offset[2])
-    ]:
-        return [
+    if int(click[0] + random_offset[0]) < label_im.shape[0] and int(click[1] + random_offset[1]) < label_im.shape[1] and int(int(click[2] + random_offset[2])) < label_im.shape[2]: # click inside the volume
+        if label_im[
             int(click[0] + random_offset[0]),
             int(click[1] + random_offset[1]),
             int(click[2] + random_offset[2])
-        ]
-    else:
-        # Fallback to original click if perturbed click is invalid
-        return [int(click[0]), int(click[1]), int(click[2])]
+        ]:
+            return [
+                int(click[0] + random_offset[0]),
+                int(click[1] + random_offset[1]),
+                int(click[2] + random_offset[2])
+            ]
+    
+    # Fallback to original click if perturbed click is invalid
+    return [int(click[0]), int(click[1]), int(click[2])]
 
 def simulate_clicks(input_label, input_pet, fg=True, bg=True, center_offset=None, edge_offset=None, click_budget=10):
     np.random.seed(SEED)
@@ -170,7 +171,7 @@ def simulate_clicks(input_label, input_pet, fg=True, bg=True, center_offset=None
                 labeled_mask = cp.array(labeled_mask)
             center = cp.unravel_index(cp.argmax(edt), edt.shape)
             if center_offset is not None:
-                center = perturb_click(center_offset, center, ~label_im.astype(np.uint8))
+                center = perturb_click(center_offset, center, ~label_im.astype(np.bool_))
 
             clicks['background'].append([int(center[0]), int(center[1]), int(center[2])])
             assert not label_im[int(center[0]), int(center[1]), int(center[2])]
@@ -194,12 +195,12 @@ def simulate_clicks(input_label, input_pet, fg=True, bg=True, center_offset=None
                 edt_inverted = (cp.max(edt) - edt) * (edt > 0)
                 boundary_elements = (edt_inverted == cp.max(edt_inverted)) * (labeled_mask == 0)
                 indices = cp.array(cp.nonzero(boundary_elements)).T.get()  # Shape: (num_true, ndim)
-                print(indices)
+                
                 if len(indices) == 0:
                     indices = cp.array(cp.nonzero(labeled_mask)).T.get()
                 boundary_click = indices[np.random.choice(indices.shape[0])]
                 if edge_offset is not None:
-                    boundary_click = perturb_click(edge_offset, boundary_click, ~label_im.astype(np.uint8))
+                    boundary_click = perturb_click(edge_offset, boundary_click, ~label_im.astype(np.bool_))
 
                 clicks['background'].append([int(boundary_click[0]), int(boundary_click[1]), int(boundary_click[2])])
                 assert not label_im[int(boundary_click[0]), int(boundary_click[1]), int(boundary_click[2])]
