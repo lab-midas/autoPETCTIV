@@ -5,7 +5,8 @@ import subprocess
 from pathlib import Path
 import SimpleITK
 import torch
-from utils import simulate_clicks, save_click_heatmaps
+
+from utils import save_click_heatmaps
 
 class Autopet_baseline:
 
@@ -18,12 +19,9 @@ class Autopet_baseline:
         # according to the specified grand-challenge interfaces
         self.input_path = "/input/"
         # according to the specified grand-challenge interfaces
-        self.output_path = "/output/images/automated-petct-lesion-segmentation/"
+        self.output_path = "/output/images/tumor-lesion-segmentation/"
         self.nii_path = (
             "/opt/algorithm/nnUNet_raw_data_base/nnUNet_raw_data/Task001_TCIA/imagesTs"
-        )
-        self.gt_nii_path = (
-            "/opt/algorithm/nnUNet_raw_data_base/nnUNet_raw_data/Task001_TCIA/labelsTs"
         )
         self.lesion_click_path = (
             "/opt/algorithm/nnUNet_raw_data_base/nnUNet_raw_data/Task001_TCIA/clicksTs"
@@ -49,6 +47,7 @@ class Autopet_baseline:
             "tumor": [],
             "background": []
         }
+        
         for point in gc_dict.get("points", []):
             if point["name"] == "tumor":
                 swfast_dict["tumor"].append(point["point"])
@@ -73,14 +72,13 @@ class Autopet_baseline:
                 + str(torch.cuda.get_device_properties(0).total_memory)
             )
 
-    def load_inputs(self, simulate_click=False, save_click_heatmap=True):
+    def load_inputs(self):
         """
         Read from /input/
         Check https://grand-challenge.org/algorithms/interfaces/
         """
         ct_mha = os.listdir(os.path.join(self.input_path, "images/ct/"))[0]
         pet_mha = os.listdir(os.path.join(self.input_path, "images/pet/"))[0]
-        label_mha = os.listdir(os.path.join(self.input_path, "labels/"))[0]
         uuid = os.path.splitext(ct_mha)[0]
 
         self.convert_mha_to_nii(
@@ -91,29 +89,18 @@ class Autopet_baseline:
             os.path.join(self.input_path, "images/pet/", pet_mha),
             os.path.join(self.nii_path, "TCIA_001_0001.nii.gz"),
         )
-        # This is only possible during training
-        self.convert_mha_to_nii(
-            os.path.join(self.input_path, "labels/", label_mha),
-            os.path.join(self.gt_nii_path, "TCIA_001.nii.gz"),
-        )
+        
+        json_file = os.path.join(self.input_path, "lesion-clicks.json")
+        print(f"json_file: {json_file}")
+        self.gc_to_swfastedit_format(json_file, os.path.join(self.lesion_click_path, "TCIA_001_clicks.json"))
 
-        if simulate_click: #For testing, this option is not possible as the clicks are provided
-            simulate_clicks(os.path.join(self.gt_nii_path, "TCIA_001.nii.gz"), 
-                            os.path.join(self.nii_path, "TCIA_001_0001.nii.gz"),
-                            self.lesion_click_path
-                            )
-        if not simulate_click:
-            json_file = next(Path(self.input_path).rglob("*.json"), None)
-            self.gc_to_swfastedit_format(json_file, os.path.join(self.lesion_click_path, "TCIA_001_clicks.json"))
-
-        if save_click_heatmap: #if save_click_heatmap=False --> original nnUNet setup with two input channels (like the auptoPET III nnunet-baseline)
-            click_file = os.listdir(self.lesion_click_path)[0]
-            if click_file:
-                with open(os.path.join(self.lesion_click_path, click_file), 'r') as f:
-                    clicks = json.load(f)
-                save_click_heatmaps(clicks, self.nii_path, 
-                                    os.path.join(self.nii_path, "TCIA_001_0001.nii.gz"),
-                                    )
+        click_file = os.listdir(self.lesion_click_path)[0]
+        if click_file:
+            with open(os.path.join(self.lesion_click_path, click_file), 'r') as f:
+                clicks = json.load(f)
+            save_click_heatmaps(clicks, self.nii_path, 
+                                os.path.join(self.nii_path, "TCIA_001_0001.nii.gz"),
+                                )
         print(os.listdir(self.nii_path))
 
         return uuid
@@ -136,7 +123,7 @@ class Autopet_baseline:
         """
         print("nnUNet segmentation starting!")
         cproc = subprocess.run(
-            f"OMP_NUM_THREADS=1 nnUNetv2_predict -i {self.nii_path} -o {self.result_path} -d 221 -c 3d_fullres -f 0 --disable_tta",
+            f"nnUNetv2_predict -i {self.nii_path} -o {self.result_path} -d 221 -c 3d_fullres -f 0 --disable_tta",
             shell=True,
             check=True,
         )

@@ -24,7 +24,6 @@ docker run -it --rm \
         --cap-drop="ALL" \
         --security-opt="no-new-privileges" \
         --shm-size="2g" \
-        --pids-limit="256" \
         --gpus="all" \
         -v $SCRIPTPATH/test/input/:/input/ \
         -v autopet_baseline-output-$VOLUME_SUFFIX:/output/ \
@@ -39,8 +38,8 @@ docker run --rm -it \
 import SimpleITK as sitk
 import os
 
-file = os.listdir('/output/images/automated-petct-lesion-segmentation')[0]
-output = sitk.GetArrayFromImage(sitk.ReadImage(os.path.join('/output/images/automated-petct-lesion-segmentation/', file)))
+file = os.listdir('/output/images/tumor-lesion-segmentation')[0]
+output = sitk.GetArrayFromImage(sitk.ReadImage(os.path.join('/output/images/tumor-lesion-segmentation/', file)))
 expected_output = sitk.GetArrayFromImage(sitk.ReadImage('/expected_output/psma_95b833d46f153cd2_2018-04-16.nii.gz'))
 
 

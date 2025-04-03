@@ -1,6 +1,9 @@
 # weights
 nnUNet_results/
 
+#image
+*.tar.gz
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -106,3 +109,6 @@ ENV/
 
 # Pycharm
 .idea/
+
+
+.nfs000000039d94572a0000064e
