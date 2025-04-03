@@ -19,9 +19,8 @@ class Autopet_baseline():  # SegmentationAlgorithm is not inherited in this clas
         """
         # set some paths and parameters
         self.input_path = '/input/'  # according to the specified grand-challenge interfaces
-        self.output_path = '/output/images/automated-petct-lesion-segmentation/'  # according to the specified grand-challenge interfaces
+        self.output_path = '/output/images/tumor-lesion-segmentation/'  # according to the specified grand-challenge interfaces
         self.nii_path = '/opt/algorithm/raw_data/imagesTs'
-        self.gt_nii_path ='/opt/algorithm/raw_data/labelsTs'
         self.result_path = '/opt/algorithm/raw_data/result'
         self.nii_seg_file = 'TCIA_001_0001.nii.gz' 
         self.lesion_click_path = '/opt/algorithm/raw_data/clicksTs'
@@ -71,7 +70,7 @@ class Autopet_baseline():  # SegmentationAlgorithm is not inherited in this clas
         """
         ct_mha = os.listdir(os.path.join(self.input_path, 'images/ct/'))[0]
         pet_mha = os.listdir(os.path.join(self.input_path, 'images/pet/'))[0]
-        json_file = next(Path(self.input_path).rglob("*.json"), None)
+        json_file = os.path.join(self.input_path, "lesion-clicks.json")
         uuid = os.path.splitext(ct_mha)[0]
 
         self.convert_mha_to_nii(os.path.join(self.input_path, 'images/ct/', ct_mha),

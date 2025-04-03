@@ -2,7 +2,7 @@ FROM pytorch/pytorch
 
 RUN groupadd -r algorithm && useradd -m --no-log-init -r -g algorithm algorithm
 
-RUN mkdir -p /opt/algorithm /input /output /output/images/automated-petct-lesion-segmentation \
+RUN mkdir -p /opt/algorithm /input /output /output/images/tumor-lesion-segmentation \
     && chown -R algorithm:algorithm /opt/algorithm /input /output
 
 USER algorithm
@@ -12,7 +12,6 @@ ENV PATH="/home/algorithm/.local/bin:${PATH}"
 
 RUN python -m pip install --user -U pip && \
     mkdir -p /opt/algorithm/raw_data/imagesTs && \
-    mkdir -p /opt/algorithm/raw_data/labelsTs && \
     mkdir -p /opt/algorithm/raw_data/clicksTs && \
     mkdir -p /opt/algorithm/raw_data/result
 
