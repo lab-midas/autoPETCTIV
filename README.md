@@ -28,12 +28,12 @@
 ### FDG PET/CT
 DICOM: <a href="https://doi.org/10.7937/gkr0-xv29"><img src="https://img.shields.io/badge/DOI-10.7937%2Fgkr0--xv29-blue"></a>
 <br/>
-NiFTI: <a href="https://doi.org/10.57754/FDAT.wf9fy-txq84"><img src="https://img.shields.io/badge/DOI-10.57754%2FFDAT.wf9fy--txq84-blue"></a>
+NIfTI: <a href="https://doi.org/10.57754/FDAT.wf9fy-txq84"><img src="https://img.shields.io/badge/DOI-10.57754%2FFDAT.wf9fy--txq84-blue"></a>
     
 ### PSMA PET/CT
 DICOM:  <a href="https://doi.org/10.7937/r7ep-3x37 "><img src="https://img.shields.io/badge/DOI-10.7937%2Fr7ep--3x37-blue"></a>
 <br/>
-NiFTI: <a href="https://doi.org/10.57754/FDAT.6gjsg-zcg93"><img src="https://img.shields.io/badge/DOI-10.57754%2FFDAT.6gjsg--zcg93-blue"></a>
+NIfTI: <a href="https://doi.org/10.57754/FDAT.6gjsg-zcg93"><img src="https://img.shields.io/badge/DOI-10.57754%2FFDAT.6gjsg--zcg93-blue"></a>
 
 ### Longitudinal CT
 Database release soon
