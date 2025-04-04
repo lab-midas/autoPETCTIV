@@ -5,7 +5,7 @@ submission can be found [here](https://autopet-iv.grand-challenge.org/submission
 documentation](https://grand-challenge.org/documentation/).
 
 ## Task
-TODO
+Best ranked model wins! The rules are simple: Train a model which generalizes well on FDG and PSMA data. This baseline model is out of competition!
 
 ## Usage 
 

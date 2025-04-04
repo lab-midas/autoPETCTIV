@@ -2,4 +2,4 @@
 
 ./build.sh
 
-docker save interactive_baseline | gzip -c > interactive_baseline.tar.gz
+docker save sw_infer | gzip -c > interactive_baseline.tar.gz

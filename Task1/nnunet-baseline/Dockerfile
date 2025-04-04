@@ -2,7 +2,7 @@ FROM pytorch/pytorch:2.6.0-cuda12.4-cudnn9-runtime
 
 RUN groupadd -r algorithm && \
     useradd -m --no-log-init -r -g algorithm algorithm && \
-    mkdir -p /opt/algorithm /input /output /output/images/automated-petct-lesion-segmentation  && \
+    mkdir -p /opt/algorithm /input /output /output/images/tumor-lesion-segmentation  && \
     chown -R algorithm:algorithm /opt/algorithm /input /output
 
 USER algorithm
@@ -21,7 +21,6 @@ RUN python -m pip install --user -U pip && \
     mkdir -p /opt/algorithm/nnUNet_raw && \
     mkdir -p /opt/algorithm/nnUNet_preprocessed && \
     mkdir -p /opt/algorithm/nnUNet_raw_data_base/nnUNet_raw_data/Task001_TCIA/imagesTs && \
-    mkdir -p /opt/algorithm/nnUNet_raw_data_base/nnUNet_raw_data/Task001_TCIA/labelsTs && \
     mkdir -p /opt/algorithm/nnUNet_raw_data_base/nnUNet_raw_data/Task001_TCIA/clicksTs && \
     mkdir -p /opt/algorithm/nnUNet_raw_data_base/nnUNet_raw_data/Task001_TCIA/result
 
