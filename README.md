@@ -124,7 +124,7 @@ Evaluation code for the autoPET/CT IV challenge according to [here](https://auto
 [Template for short paper](https://autopet-iv.grand-challenge.org/challenge-publication/) of final algorithm submission in [here](/publication_template/) 
 
 ## References
-Challenge: TBD<br/>
+Challenge: [![](https://zenodo.org/badge/DOI/10.5281/zenodo.15045096.svg)](https://doi.org/10.5281/zenodo.15045096)
    
    
    
