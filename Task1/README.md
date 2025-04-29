@@ -2,7 +2,30 @@
 Repository for code associated with autoPETIV machine learning challenge: <br/> 
 [autopet-iv.grand-challenge.org](https://autopet-iv.grand-challenge.org/autopet-iv/) 
 
-## interactive-baseline
+
+## Grand Challenge Algorithm Context
+
+This codebase is designed to run as a [Grand Challenge Algorithm](https://grand-challenge.org/documentation/create-your-own-algorithm/). This means it's packaged as a Docker container that Grand Challenge executes.
+
+Key points for running on Grand Challenge:
+1.  **Input/Output:** The algorithm expects input data in `/input/` and writes results to `/output/`, following the standard Grand Challenge structure. The specific input files expected are:
+    ```
+    /input/
+    ├── images/
+    │   ├── ct/                               (MHA File)
+    │   ├── pet/                              (MHA File)
+    ├── lesion-clicks.json                    (JSON File)
+    ```
+    The algorithm container reads the necessary files from `/input` based on the specific task it's executing and writes the resulting segmentation mask (`<uuid>.mha`) to the following subdirectory within `/output/`:
+    ```
+    /output/images/tumor-lesion-segmentation/
+    ```
+
+2.  **Single Case Execution:** Grand Challenge runs the algorithm container *once per case*. The code in `process.py` handles a single execution based on the available inputs.
+
+## Baseline Implementation Details
+
+### interactive-baseline
 Baseline model 1 for lesion segmentation: The SW-FastEdit model (https://github.com/Zrrr1997/SW-FastEdit) was used for training the baseline. 
 The model input channels were structured as follows:
 * FDG-PET (SUV) volumes from the autoPET II challenge, 
@@ -15,7 +38,7 @@ The model input channels were structured as follows:
 For each corresponding image, 3D Gaussian heatmaps were generated for both the foreground (tumor) and background clicks. These heatmaps were then converted to NIfTI format.
 The model  was trained using three input channels.
 
-## nnunet-baseline
+### nnunet-baseline
 Baseline model 2 for lesion segmentation: The nnUNet framework (https://github.com/MIC-DKFZ/nnUNet) 
 was used for training the baseline model using the 3D fullres configuration on GPU with 32 GB VRAM. 
 The model input channels were structured as follows:

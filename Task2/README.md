@@ -29,8 +29,8 @@ Key points for running on Grand Challenge:
     ```
     The algorithm container reads the necessary files from `/input` based on the specific task it's executing and writes the resulting segmentation mask (`<uuid>.mha`) to one of the following subdirectories within `/output/`:
     ```
-    /output/primary-followup-ct-tumor-lesion-seg/
-    /output/secondary-followup-ct-tumor-lesion-seg/
+    /output/images/primary-followup-ct-tumor-lesion-seg/
+    /output/images/secondary-followup-ct-tumor-lesion-seg/
     ```
 
 2.  **Single Case Execution:** Grand Challenge runs the algorithm container *once per case*. The code in `main.py` handles a single execution based on the available inputs.
