@@ -1,0 +1,4 @@
+# sh (and their template counter parts) should always be lf their line endings
+*.sh text=lf eol=lf
+*.sh.j2 text=lf eol=lf
+resources/* filter=lfs diff=lfs merge=lfs -text

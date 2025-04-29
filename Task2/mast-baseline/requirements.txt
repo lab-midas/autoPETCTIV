@@ -1,0 +1,9 @@
+numpy #<2.0.0
+scipy #<1.12.0
+pandas
+python_box
+PyYAML
+SimpleITK
+tqdm
+wget
+python-box

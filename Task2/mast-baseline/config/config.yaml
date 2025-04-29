@@ -1,0 +1,21 @@
+# Model and data paths
+paths:
+  model_folder: "/opt/app/data/nnUNet_results/Dataset901_Filtered_FSUP/nnUNetTrainer_ULS_500_QuarterLR__nnUNetPlansNoRs__3d_fullres_resenc"
+  # nnUNet required paths
+  nnunet_raw: "/opt/app/data/nnUNet_raw"  
+  nnunet_preprocessed: "/opt/app/data/nnUNet_preprocessed"  
+  nnunet_results: "/opt/app/data/nnUNet_results" 
+  # LongiSeg required paths
+  longiseg_raw: "/opt/app/data/LongiSeg_raw"  
+  longiseg_preprocessed: "/opt/app/data/LongiSeg_preprocessed"  
+  longiseg_results: "/opt/app/data/LongiSeg_results" 
+
+# VOI parameters (needed for the ULS model)
+voi:
+  depth: 128
+  height_width: 256
+
+grand_challenge:
+  input_path: /input
+  output_path: /output/images/
+  
