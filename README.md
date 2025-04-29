@@ -36,7 +36,7 @@ DICOM:  <a href="https://doi.org/10.7937/r7ep-3x37 "><img src="https://img.shiel
 NIfTI: <a href="https://doi.org/10.57754/FDAT.6gjsg-zcg93"><img src="https://img.shields.io/badge/DOI-10.57754%2FFDAT.6gjsg--zcg93-blue"></a>
 
 ### Longitudinal CT
-Database release soon
+NIfTI: <a href="https://doi.org/10.57754/FDAT.qwsry-7t837"><img src="https://img.shields.io/badge/DOI-10.57754%2FFDAT.qwsry--7t837-blue"></a>
 
 ## Tasks
 The tasks will handle lesion segmentation for whole-body hybrid imaging for a single-staging PET/CT (Task 1) or a longitudinal CT screening (Task 2). All public available data and (pre-trained) models (including foundation models) are allowed. Time points and/or imaging modality inputs can be treated individually or jointly. Participants can either develop a
@@ -44,7 +44,7 @@ The tasks will handle lesion segmentation for whole-body hybrid imaging for a si
 - novel method and/or
 - focus on data-centric approaches (using the provided baselines), i.e. development on pre- and post-processing pipelines.
 
-![](https://public.grand-challenge-user-content.org/i/2025/03/23/53b754cd-e1d8-4b10-9bb7-f253acf14cc6.png)
+![](https://public.grand-challenge-user-content.org/i/2025/04/08/41f66911-d16a-485a-b20f-f67b5b4522e1.png)
 
 ### Task 1: Single-staging whole-body PET/CT
    
@@ -61,8 +61,8 @@ In Task 2, we explore the segmentation performance to detect lesions in a follow
 
 We will study the behaviour over 2 interactive segmentation steps. In the first step, only the CT images of the baseline and follow-up scan are provided together with the baseline segmentation mask (for tumor localization). For the first step no tumor click is given, i.e. empty lesion click file. In the second step, the CT images (baseline and follow-up), the baseline segmentation mask and an additional pre-simulated tumor click in the follow-up CT scan are provided. We encourage the usage of registration algorithms to align the baseline and follow-up CT scan, i.e. to transform the baseline lesion (from baseline segmentation) into the follow-up CT scan and target region (click), but this is not mandatory.
 
-#### Baselines
-TBD
+#### Baseline
+1. [mast-baseline](Task2/mast-baseline)
 
 ## Click simulation
 To simulate clicks on new data and replicate the exact same conditions as our provided clicks for autoPET/CT IV, you could use the `clicks/simulate_clicks.py` script by first installing all dependencies as in 2.2 Inference with Python Script.
@@ -115,7 +115,7 @@ with the interface:
 Pre-simulated clicks for the entire FDG+PSMA training database can be found in `simulate_clicks/FDG_PSMA_PETCT_pre-simulated-clicks.zip`.
 
 ### Task 2: Longitudinal CT
-Pre-simulated clicks for the entire longitudinal CT training database can be found in `simulate_clicks/...`
+Pre-simulated clicks for the entire longitudinal CT training database are bundled with the database release.
 
 ## Evaluation metrics
 Evaluation code for the autoPET/CT IV challenge according to [here](https://autopet-iv.grand-challenge.org/evaluation-and-ranking/) can be found in: `evaluation_metrics/evaluation_metrics.py`
