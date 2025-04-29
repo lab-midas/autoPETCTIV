@@ -17,10 +17,10 @@ Key points for running on Grand Challenge:
     /input/
     ├── images/
     │   ├── primary-baseline-ct/                               (Image File)
-    │   ├── primary-baseline-ct-tumor-lesion-seg/     (Image File)
+    │   ├── primary-baseline-ct-tumor-lesion-seg/              (Image File)
     │   ├── primary-followup-ct/                               (Image File)
     │   ├── secondary-baseline-ct/                             (Image File)
-    │   ├── secondary-baseline-ct-tumor-lesion-seg/   (Image File)
+    │   ├── secondary-baseline-ct-tumor-lesion-seg/            (Image File)
     │   └── secondary-followup-ct/                             (Image File)
     ├── primary-baseline-lesion-clicks.json                    (JSON File)
     ├── primary-followup-lesion-clicks.json                    (JSON File)
