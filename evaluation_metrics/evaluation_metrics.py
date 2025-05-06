@@ -98,7 +98,7 @@ def compute_interactive_metrics(nii_gt_paths, nii_pred_paths, n_clicks):
     return dice_auc, fpv_auc, fnv_auc, dice_final, fpv_final, fnv_final
 
 def get_metrics(gt_folder_path, pred_folder_path):
-    # Get metrics for a single test case and aggregate, non-interactive
+    # Get metrics for a single test case and aggregate in a non-interactive setting (using directly predicted mask from all 10 click pairs—foreground and background)
     # input: path of NIfTI segmentation files (ground truth and prediction)
     # output: Dice score, false positive volume, false negative volume
     csv_header = ['gt_name', 'dice_sc', 'false_pos_vol', 'false_neg_vol']
@@ -123,7 +123,7 @@ def get_metrics(gt_folder_path, pred_folder_path):
             ])
 
 def get_interactive_metrics(gt_folder_path, pred_folder_path, n_clicks):
-    # Get metrics for a single test case and aggregate, interactive
+    # Get metrics for a single test case and aggregate in an interactive setting
     # input: path of NIfTI segmentation files (ground truth and prediction)
     # output: Dice score AUC, false positive volume AUC, false negative volume AUC, Dice score final, false positive volume final, false negative volume final
     csv_header = ['gt_name', 'dice_auc', 'fpv_auc', 'fnv_auc', 'dice_final', 'fpv_final', 'fnv_final']
