@@ -91,7 +91,7 @@ def parse_csv():
 
 if __name__ == "__main__":
     # Path to your directory with the data curation
-    dst_basedir = "" 
+    dst_basedir = ""
     parse_csv()
 
 
