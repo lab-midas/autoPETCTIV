@@ -59,7 +59,7 @@ class VOIGenerator:
                 for lesion_id, voxel_coord in clickpoints.items():
                     try:
                         
-                        voi = extractor.extract_voi(voxel_coord, coordinate_type='voxel')
+                        voi = extractor.extract_voi(voxel_coord)
                         
                         # Yield VOI data
                         yield {
