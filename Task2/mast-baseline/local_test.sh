@@ -16,7 +16,6 @@ MEM_LIMIT="30g"  # Maximum is currently 30g, configurable in your algorithm imag
 
 echo "Running evaluation"
 docker run -it --rm \
-    --privileged \
     --memory="${MEM_LIMIT}" \
     --memory-swap="${MEM_LIMIT}" \
     --network="none" \

@@ -14,7 +14,7 @@ def which_interface(path: Path):
                     "interface 1": [
                         "images/primary-baseline-ct",
                         "images/primary-followup-ct",
-                        "images/primary-baseline-ct-tumor-lesion-segmentation",
+                        "images/primary-baseline-ct-tumor-lesion-seg",
                         "primary-baseline-lesion-clicks.json",
                         "primary-followup-lesion-clicks.json"
                     ],
@@ -24,8 +24,8 @@ def which_interface(path: Path):
                         "images/secondary-baseline-ct",
                         "images/primary-followup-ct",
                         "images/secondary-followup-ct",
-                        "images/primary-baseline-ct-tumor-lesion-segmentation",
-                        "images/secondary-baseline-ct-tumor-lesion-segmentation",
+                        "images/primary-baseline-ct-tumor-lesion-seg",
+                        "images/secondary-baseline-ct-tumor-lesion-seg",
                         "primary-baseline-lesion-clicks.json",
                         "secondary-baseline-lesion-clicks.json",
                         "primary-followup-lesion-clicks.json",
@@ -36,8 +36,8 @@ def which_interface(path: Path):
                         "images/primary-baseline-ct",
                         "images/secondary-baseline-ct",
                         "images/primary-followup-ct",
-                        "images/primary-baseline-ct-tumor-lesion-segmentation",
-                        "images/secondary-baseline-ct-tumor-lesion-segmentation",
+                        "images/primary-baseline-ct-tumor-lesion-seg",
+                        "images/secondary-baseline-ct-tumor-lesion-seg",
                         "primary-baseline-lesion-clicks.json",
                         "secondary-baseline-lesion-clicks.json",
                         "primary-followup-lesion-clicks.json"
@@ -47,7 +47,7 @@ def which_interface(path: Path):
                         "images/primary-baseline-ct",
                         "images/primary-followup-ct",
                         "images/secondary-followup-ct",
-                        "images/primary-baseline-ct-tumor-lesion-segmentation",
+                        "images/primary-baseline-ct-tumor-lesion-seg",
                         "primary-baseline-lesion-clicks.json",
                         "primary-followup-lesion-clicks.json",
                         "secondary-followup-lesion-clicks.json"
@@ -84,39 +84,50 @@ class VoiExtractor:
             "pixel_id": self.sitk_image.GetPixelIDValue() # Store the ID for potential later casting
         }
 
-    def extract_voi(self, clickpoint: list, coordinate_type='physical') -> sitk.Image:
-        """
-        Extracts a VOI centered around a click point.
 
-        Args:
-            clickpoint: A list or tuple representing the clickpoint coordinates [x, y, z].
-            coordinate_type: voxel of physical coordinates
+    def extract_voi(self, clickpoint) -> sitk.Image:
+            """
+            Extracts a VOI of exact size centered around a click point with correct spatial metadata preserved.
+            Ensures the clickpoint is at the exact center of the VOI, regardless of image boundaries.
 
-        Returns:
-            - voi (sitk.Image): The extracted VOI.
-        """
-        if not (isinstance(clickpoint, (tuple, list)) and len(clickpoint) == 3) or coordinate_type not in ['physical', 'voxel']:
-            raise ValueError("clickpoint must be a list or tuple of 3 floats [x, y, z], and coordinate_type must be physical or voxel")
-        
-        if coordinate_type == 'physical':
-            v_idx = self.sitk_image.TransformPhysicalPointToIndex(clickpoint)
-        elif coordinate_type == 'voxel':
-            # Ensure voxel coordinates are integers
-            v_idx = [int(round(c)) for c in clickpoint] 
-        else:
-             # This case should not happen due to the initial check, but added for robustness
-             raise ValueError(f"Invalid coordinate_type: {coordinate_type}")
+            Args:
+                sitk_image: The SimpleITK image to extract VOI from
+                clickpoint: A list or tuple representing the clickpoint coordinates [x, y, z]
 
-        start_idx = [max(0, v_idx[k] - self.voi_size_xyz[k] // 2) for k in range(3)]
-        actual_size = [min(self.img_size_xyz[k], start_idx[k] + self.voi_size_xyz[k]) - start_idx[k] for k in range(3)]
-
-        if tuple(actual_size) != tuple(self.voi_size_xyz):
-            print(f"Warning: VOI could not be cropped to exact size {self.voi_size_xyz} due to image boundaries. "
-                  f"Center: {clickpoint}. Requested Size: {self.voi_size_xyz}. "
-                  f"Actual Start: {start_idx}. Actual Size: {actual_size}")
-
-        voi = sitk.RegionOfInterest(self.sitk_image, actual_size, start_idx)
-        return voi
+            Returns:
+                voi (sitk.Image): The extracted VOI with preserved spatial position
+            """
+            
+            center_idx = [int(round(c)) for c in clickpoint]
+            
+            # Calculate the reference image for our VOI
+            # This creates a blank image of the desired size, properly centered around the clickpoint
+            reference_image = sitk.Image(self.voi_size_xyz, self.sitk_image.GetPixelID())
+            reference_image.SetSpacing(self.sitk_image.GetSpacing())
+            reference_image.SetDirection(self.sitk_image.GetDirection())
+            
+            # Calculate the origin so that the clickpoint is at the center of the VOI
+            # Half size in physical coordinates
+            half_size_physical = [(self.voi_size_xyz[i] // 2) * self.sitk_image.GetSpacing()[i] for i in range(3)]
+            
+            # Physical coordinates of the clickpoint
+            click_physical = self.sitk_image.TransformIndexToPhysicalPoint(center_idx)
+            
+            # Origin is clickpoint minus half the VOI size in each dimension
+            origin = [click_physical[i] - half_size_physical[i] for i in range(3)]
+            reference_image.SetOrigin(origin)
+            
+            # Use SimpleITK's Resample to create the VOI
+            # This handles edge cases and padding automatically
+            default_value = float(0)
+            
+            # Identity transform - we're not changing the coordinate system
+            transform = sitk.Transform(3, sitk.sitkIdentity)
+            
+            # Resample original image into the reference image space
+            voi = sitk.Resample(self.sitk_image, reference_image, transform, sitk.sitkLinear, default_value)
+                    
+            return voi
 
 
 class SegmentationMerger:

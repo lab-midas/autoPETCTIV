@@ -1,3 +1,4 @@
+
 from pathlib import Path
 from typing import Dict, Iterator
 
@@ -93,6 +94,28 @@ class InferenceProcessor:
 
         except Exception as e:
             tqdm.write(f"Error saving merged mask for case {self.current_case_key}: {str(e)}")
+
+    def keep_closest_lesion(self, seg, lid):
+        """Find and keep only the lesion closest to the center."""
+        # Get image array to count unique values
+        seg_array = sitk.GetArrayFromImage(seg)
+        unique_vals, counts = np.unique(seg_array, return_counts=True)
+        bg_count = counts[0] if 0 in unique_vals else 0
+        seg_count = sum(counts[unique_vals > 0]) if len(unique_vals) > 1 else 0
+        print(f"Segmentation stats - Background voxels: {bg_count}, Segmentation voxels: {seg_count}")
+        
+        cc = sitk.ConnectedComponentImageFilter().Execute(seg)
+        center = [s//2 for s in seg.GetSize()]
+        stats = sitk.LabelShapeStatisticsImageFilter()
+        stats.Execute(cc)
+        
+        if not stats.GetLabels():
+            return seg
+            
+        closest = min(stats.GetLabels(), 
+                        key=lambda l: sum((c-o)**2 for c,o in zip(stats.GetCentroid(l), center)))
+        
+        return sitk.Cast(cc == closest, sitk.sitkUInt8) * lid
     
     def _process_and_merge_voi(self, item: Dict) -> None:
         """Process a single VOI and merge it into the case mask."""
@@ -134,11 +157,12 @@ class InferenceProcessor:
             
             seg_sitk.CopyInformation(voi)
 
+            final_seg = self.keep_closest_lesion(seg_sitk, lesion_id)
             del voi
+            del seg_sitk
             
             # Add VOI segmentation to the merger tool
-            self.merger.add_voi_segmentation(seg_sitk)
-            del seg_sitk
+            self.merger.add_voi_segmentation(final_seg)
             
             # Free memory - keep explicit cache clearing
             if torch.cuda.is_available():
