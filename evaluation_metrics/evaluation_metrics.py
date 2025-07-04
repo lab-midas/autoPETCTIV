@@ -30,35 +30,77 @@ def con_comp(seg_array):
     conn_comp = cc3d.connected_components(seg_array, connectivity=connectivity)
     return conn_comp
 
-def false_pos_pix(gt_array,pred_array):
-    # compute number of voxels of false positive connected components in prediction mask
-    pred_conn_comp = con_comp(pred_array)
-    
-    false_pos = 0
-    for idx in range(1,pred_conn_comp.max()+1):
-        comp_mask = np.isin(pred_conn_comp, idx)
-        if (comp_mask*gt_array).sum() == 0:
-            false_pos = false_pos+comp_mask.sum()
-    return false_pos
+def false_pos_pix(ground_truth: np.ndarray, prediction: np.ndarray):
+    """Count the number of false positive pixel, which do not overlap with the ground truth, based on the prediction
+    and ground truth arrays.
+    Returns zero if the prediction array is empty.
+    Args:
+        prediction (np.ndarray): The predicted array.
+        ground_truth (np.ndarray): The ground truth array.
+    returns:
+        float: The number of false positive pixel which do not overlap with the ground truth.
 
-def false_neg_pix(gt_array,pred_array):
-    # compute number of voxels of false negative connected components (of the ground truth mask) in the prediction mask
-    gt_conn_comp = con_comp(gt_array)
+    """
     
-    false_neg = 0
-    for idx in range(1,gt_conn_comp.max()+1):
-        comp_mask = np.isin(gt_conn_comp, idx)
-        if (comp_mask*pred_array).sum() == 0:
-            false_neg = false_neg+comp_mask.sum()
-            
-    return false_neg
+    if prediction.sum() == 0:
+        return 0
 
-def dice_score(mask1,mask2):
-    # compute foreground Dice coefficient
-    overlap = (mask1*mask2).sum()
-    sum = mask1.sum()+mask2.sum()
-    dice_score = 2*overlap/sum
+    connected_components = cc3d.connected_components(
+        prediction.astype(int), connectivity=18
+    )
+    false_positives = 0
+
+    for idx in range(1, connected_components.max() + 1):
+        component_mask = np.isin(connected_components, idx)
+        if (component_mask * ground_truth).sum() == 0:
+            false_positives += component_mask.sum()
+
+    return false_positives
+
+def false_neg_pix(ground_truth: np.ndarray, prediction: np.ndarray):
+    """Count the number of false negative pixel, which do not overlap with the ground truth, based on the prediction
+    and ground truth arrays.
+    Returns nan if the ground truth array is empty.
+    Args:
+        prediction (np.ndarray): The predicted array.
+        ground_truth (np.ndarray): The ground truth array.
+    Returns:
+        float: The number of false negative pixel, which do not overlap with the prediction.
+
+    """
+    
+    if ground_truth.sum() == 0:
+        return np.nan
+
+    gt_components = cc3d.connected_components(ground_truth.astype(int), connectivity=18)
+    false_negatives = 0
+
+    for component_id in range(1, gt_components.max() + 1):
+        component_mask = np.isin(gt_components, component_id)
+        if (component_mask * prediction).sum() == 0:
+            false_negatives += component_mask.sum()
+
+    return false_negatives
+
+def dice_score(ground_truth: np.ndarray, prediction: np.ndarray) -> float:
+    """Calculate the Dice score between the prediction and ground truth arrays.
+    Returns nan if the ground truth array is empty.
+    Args:
+        prediction (np.ndarray): The predicted array.
+        ground_truth (np.ndarray): The ground truth array.
+    Returns:
+        float: The Dice score between the prediction and ground truth arrays.
+
+    """
+    if ground_truth.sum() == 0:
+        return np.nan
+
+    intersection = (ground_truth * prediction).sum()
+    union = ground_truth.sum() + prediction.sum()
+    dice_score = 2 * intersection / union
+
     return dice_score
+
 
 def compute_metrics(nii_gt_path, nii_pred_path):
     # compute metrics core for a single test case
@@ -69,7 +111,19 @@ def compute_metrics(nii_gt_path, nii_pred_path):
 
     false_neg_vol = false_neg_pix(gt_array, pred_array)*voxel_vol
     false_pos_vol = false_pos_pix(gt_array, pred_array)*voxel_vol
-    dice_sc = dice_score(gt_array,pred_array)
+
+    num_classes = np.unique(gt_array)
+    # For Task 2, the ground truth masks have multi-labels.
+    # For this case the dice will be computed for each individual class/label and average over the image.
+    if len(num_classes)>2:
+        dices = []
+        for cls in num_classes:
+            true_cls = (gt_array == cls).astype(np.uint8)
+            pred_cls = (pred_array == cls).astype(np.uint8)
+            dices.append(dice_score(true_cls,pred_cls))
+        dice_sc = np.mean(dices)
+    else:
+        dice_sc = dice_score(gt_array,pred_array)
 
     return dice_sc, false_pos_vol, false_neg_vol
 
