@@ -112,18 +112,7 @@ def compute_metrics(nii_gt_path, nii_pred_path):
     false_neg_vol = false_neg_pix(gt_array, pred_array)*voxel_vol
     false_pos_vol = false_pos_pix(gt_array, pred_array)*voxel_vol
 
-    num_classes = np.unique(gt_array)
-    # For Task 2, the ground truth masks have multi-labels.
-    # For this case the dice will be computed for each individual class/label and average over the image.
-    if len(num_classes)>2:
-        dices = []
-        for cls in num_classes:
-            true_cls = (gt_array == cls).astype(np.uint8)
-            pred_cls = (pred_array == cls).astype(np.uint8)
-            dices.append(dice_score(true_cls,pred_cls))
-        dice_sc = np.mean(dices)
-    else:
-        dice_sc = dice_score(gt_array,pred_array)
+    dice_sc = dice_score(gt_array,pred_array)
 
     return dice_sc, false_pos_vol, false_neg_vol
 
